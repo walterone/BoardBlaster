@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+ 
+<head>
+    <title>BoardBlaster</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		
+	<style>
+
+	.list-group{
+	
+	width:100%;
+	
+	}
+	
+	
+	imgOLD {
+	
+    width:100px;
+    height:100px;
+    overflow:hidden;
+	}
+	
+	
+	
+	</style>
+</head>
+ 
+<body>
+ 	<script src="/socket.io/socket.io.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+
+	<script>
+	var index;
+	  var socket = io();
+	var curboard;
+	var threads = [];
+	  
+	  //alla ricezione della socket info
+	  socket.on('boards', function(data) {   
+			//var testarray = Array.from(data);
+           data.boards.forEach(function(item){
+  		var b_letter = item.letter;
+  		var b_name = item.name;
+  		 $('#boards').append('<option value="' + b_letter + '">/' + b_letter + '/ ('+ b_name +')</option>' );
+		   });
+        });
+        
+    	
+        
+      socket.on('ScanRes', function(json) {   
+        
+        $('#progbar-space').hide();
+        
+        var JSONObject = JSON.parse(json);
+        
+       	
+		var name = JSONObject["name"];
+		var num = JSONObject["num"];
+		var maximgs = JSONObject["maximgs"];
+		var img = JSONObject["img"];
+		var thumbs = JSONObject["thumbs"];
+		var alreadyDL = JSONObject["alreadyDL"];
+		//console.log(img);
+		var jobj = {"index":index,"num":num,"name":name, "flag": "ign"};	
+		var bgcolor = "white";
+		if(alreadyDL){
+			bgcolor = "#f4ffb6"
+			//alert(name + " già scaricato!");
+		}
+		
+        //alert(JSONObject.img[0][0]);
+        if($('#listah').append(
+        '<div class="lista"><li class="list-group-item" style="background-color:'+bgcolor+';">' +
+        '<div class="row"> <div class="col-md-4">' +
+        '<h4><a href="https://boards.4channel.org/'+curboard+'/thread/'+num+'" target="_blank" >' +name+ '</a></h4><p>Has ' + maximgs + ' elements</p><p>Thread N.'+num+  '</p></div>' +
+        '<div class="col-md-4">' +
+        //immagini
+        '<img src="' + thumbs[0] + '" alt="" />'+
+       '<img src="' + thumbs[1] + '" alt="" />'+
+       '<img src="' + thumbs[2] + '" alt="" />'+
+       
+        
+        '</div><div class="col-md-4"><form>' +
+        '<div class="radio"><label><input type="radio" name="rad_btn" data-action="ign" data-index="' + index +'" checked>&nbsp;Ignore</label></div>'+
+        '<div class="radio"><label><input type="radio" name="rad_btn" data-action="dwn" data-index="' + index +'" >&nbsp;Download</label></div>'+
+        '<div class="radio"><label><input type="radio" name="rad_btn" data-action="blk" data-index="' + index +'" >&nbsp;Blacklist</label></div>'+
+   
+
+    	'</form></div></div></li></div>'
+        
+        
+        
+        )){
+         //threads.splice(0, index, jobj);
+         threads.push(jobj);
+         //console.log(threads);
+         
+         index++;
+         //threads.push(jobj);
+        }else{
+        	alert("ERRORE");
+        }
+         
+        
+         
+         //alert(name + img);
+        });
+	 
+
+	  socket.on('progBar', function(progBarObj) {
+	 		 $('#progbar-space').show();
+	 	 	var prog = JSON.parse(progBarObj);
+       // console.log(prog);
+        
+        /*
+        	Mi servono i seguenti dati:
+        	- N. delle immagini tot da scaricare
+        	- N. di immagini attualmente scaricate
+        	- Nome thread in download
+        */
+       	
+			var currimg = prog["currimg"];
+			var maximg = prog["maximg"];
+			var desc = prog["desc"];
+	  
+	  		//x:100=currimg:maximg
+	  
+	  		var barValue = Math.floor((currimg * 100)/maximg);
+	  		//console.log(Math.floor((currimg * 100)/maximg));
+	  		$('.progress-bar').css('width', barValue+'%').attr('aria-valuenow', barValue).text(currimg + "/" + maximg);
+	  		$('#proglabel1').text("Downloading from thread: " + desc);
+	  		$('#proglabel2').text("Downloaded: " + currimg + " out of " + maximg);
+	  
+	  });
+	  //'form input[type=radio]:checked'
+		   
+	 
+	 
+	 socket.on('comms', function(data) {
+	 console.log(data);
+	  /*
+        	Mi servono i seguenti dati:
+        	- comm: Messaggio da comunicare
+        	- switch: condizione custom per visualizzazioni avanzate
+        */
+	 
+	  	var mess = data.comm + "\n"
+       	var swtch = data.swtch
+	  		
+	  		$('#txtConsole').prepend(mess);
+	  
+	  });
+	 
+	 
+	 $(function() {
+	 socket.emit('req-boards', "");
+	 index = 0;
+	 
+	 
+		  $('#scan, #start, #stop').click(function () {
+	  	if (this.id == 'scan') {
+		   curboard =  $('#boards').val();
+		   
+			  //$('#txtConsole').prepend("STARTING..."+ "\n");	
+			  socket.emit('scan', curboard);
+			  $(".lista").remove();
+		}
+	  
+	  
+	 	 if (this.id == 'start') {
+	  	
+	  		
+	  		//console.log(threads);
+	  		//al click si prende l'array e si manda al webserver.
+	  		//il webserver sarà poi lui a smistarle in base al flag e ad effettuare l'associazione con l'array di json.
+	  		
+	  		//gli ID combacieranno e lui prenderà le info dai json immagazzinati.
+	  		
+	  		// I DATI VENGONO TRASMESSI SOLO ALLA PRESSIONE DEL BOTTONE, NON SI PUO' CAMBIARE PAGINA DINAMICAMENTE
+	  		
+	  		
+	  		socket.emit('work', threads);
+	  		$(".lista").remove();
+	  		
+	  		
+	  
+		  }
+	  
+	  });
+	 
+	  
+	  
+	  $("body").on("change", "input[name='rad_btn']:radio", function(){
+	  	
+	    var flag = $(this).data("action");
+	    //alert();
+	  if ($(this).data("action") == 'ign') {
+	  	threads[$(this).data("index")].flag = flag;
+	  	//alert("ign " + $(this).data("index") );
+
+	  
+	  }else if($(this).data("action") == 'dwn'){
+	  flag = $(this).data("action");
+	  threads[$(this).data("index")].flag = flag;
+	  //alert(threads[$(this).data("index")].flag);
+	 // alert(flag);
+	  	
+	  
+	  }else if ($(this).data("action") == 'blk'){
+	  flag = $(this).data("action");
+	  threads[$(this).data("index")].flag = flag;
+	  
+	 
+		   
+		   
+			
+		   }
+	  //alert($(this).data("index") + '   ' + threads[$(this).data("index")].flag);
+	  //console.log(threads[$(this).data("index")]);
+	  });
+	  
+	  
+	  
+	  
+	  
+	 
+	 });
+	 
+	 
+	 $(document).ready(function() {
+  	  $('#progbar-space').hide();
+	});
+	 
+	 
+	</script>
+
+    <div class="container">
+
+      <!-- Static navbar -->
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            
+            <a class="navbar-brand" href="#">BoardBlaster </a><a class="navbar-brand" href="view" target="_blank"> Viewer</a>
+          </div>
+       
+        </div><!--/.container-fluid -->
+      </nav>
+
+      <!-- Main component for a primary marketing message or call to action -->
+    <center>  <div class="jumbotron">
+      	<div class="container">
+      	<div class="row">
+      	
+      		<div class="col">
+ 			<label for="boards">Choose a Board:</label>
+
+			<select id="boards"></select>
+      	
+      	</div>
+      	
+      		<div class="col">
+				<h1>V.0.7</h1>
+			</div>
+			<div class="col">
+								<button id="scan" type="button" class="btn btn-dark">Start scanning threads</button>
+	
+			</div>
+      	</div>
+      	
+      	
+      	<div class="row">
+			
+				<div class="col-md-4">
+				</div>
+				<div class="col-md-4">
+									<h3><small id="infos" class="text-muted">Made by: WS</small></h3>
+
+				</div>
+				<div class="col-md-4">
+					
+ 				 </div>
+		</div>
+      	
+      	
+		<div class="row">
+			
+				<div class="col-md-4"></div>
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#demo">
+    					Show Console
+  						</button>
+  				</div>
+		</div>
+			
+			
+				
+		
+		
+		
+		
+		
+		
+
+
+				<div class="row collapse show" id="demo">
+				
+					<div class="col">
+						<label for="txtConsole">Console</label>
+						<textarea class="form-control" id="txtConsole" rows="10"></textarea>
+					</div>
+				
+			
+				</div>
+			
+
+			
+			</br>
+			</br>
+			
+						<div class="row" id="progbar-space" >
+				<div class="col-md-3"></div>
+			
+				<div class="col-md-6 bg-light" style="border:1px solid black; border-radius: 10px;padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px">
+				
+					<p id="proglabel1"></p>
+
+					<div class="container">
+						<div class="progress" style="height: 25px">	
+							<div id="progbar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Please Wait...</div>
+						</div>
+					</div>
+					</br>
+					<p id="proglabel2"></p>
+			
+				</div>
+			
+			
+				<div class="col-md-3"></div>
+			</div>
+			
+			
+			
+			
+			
+			
+			</br>
+			</br>
+			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4"></div>
+				<div class="col-md-4"></div> 
+			
+			
+				<ul id="listah" class="list-group">
+					<li class="list-group-item">
+							<div class="row">
+								<div class="col-md-4">
+									<p>Nome Thread</p>
+								</div>
+								<div class="col-md-4">
+									<p>Immagini</p>
+								</div>
+								<div class="col-md-4">
+								<p>Blacklista/Download</p>
+							
+								</div>
+							</div>
+					</li>			
+				</ul>
+			</div>
+			
+			
+			
+</div>
+			
+			
+			</br>
+			
+			
+
+			
+			
+			</br>
+			
+			
+			<div class="row">
+				<div class="col">
+					<button id="start" type="button" class="btn btn-success">Start Crawling</button>
+					<button id="stop" type="button" class="btn btn-danger">Stop Crawling</button>	
+				</div>	
+			</div>
+			</br>
+		
+		
+		</div>
+      
+      
+      
+       
+       
+      </div> </center>
+
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== 
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+   
+   
+    -->
+    
+    
+  </body>
+    
+    
+   
+</body>
+ 
+</html>
