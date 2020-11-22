@@ -1,5 +1,7 @@
 # BoardBlaster
 
+> This is a concept in Early Development, all feedbacks are appreciated!
+
 BoardBlaster is a lightweight utility, made in Node.JS, for all your media downloading and curating needs! \
 This tool crawls and downloads media files from your favourite 4Chan board. BoardBlaster also gives you a mobile-friendly visualizer page with different management options.
 
