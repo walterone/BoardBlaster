@@ -53,7 +53,7 @@
         
       socket.on('ScanRes', function(json) {   
         
-        $('#progbar-space').hide();
+       $('#progbar-space').hide();
         
         var JSONObject = JSON.parse(json);
         
@@ -111,7 +111,14 @@
         });
 	 
 
+	socket.on('done', function() {
+	
+	 $('.elaborateBTN').show();
+	
+	});
+
 	  socket.on('progBar', function(progBarObj) {
+	  		 
 	 		 $('#progbar-space').show();
 	 	 	var prog = JSON.parse(progBarObj);
        // console.log(prog);
@@ -161,7 +168,23 @@
 	 index = 0;
 	 
 	 
-		  $('#scan, #start, #stop').click(function () {
+		  $('#scan, #start, #stop, #skip').click(function () {
+		  
+		  if (this.id == 'skip') {
+		   socket.emit('skipDL', "" );
+		  
+		  }
+		  
+		  if (this.id == 'stop') {
+		   curboard =  $('#boards').val();
+		   
+			  //$('#txtConsole').prepend("STARTING..."+ "\n");	
+			  socket.emit('clear', curboard );
+			  $(".lista").remove();
+			  location.reload();
+
+		}
+		  
 	  	if (this.id == 'scan') {
 		   curboard =  $('#boards').val();
 		   
@@ -182,7 +205,7 @@
 	  		
 	  		// I DATI VENGONO TRASMESSI SOLO ALLA PRESSIONE DEL BOTTONE, NON SI PUO' CAMBIARE PAGINA DINAMICAMENTE
 	  		
-	  		
+	  		$('.elaborateBTN').hide();
 	  		socket.emit('work', threads);
 	  		$(".lista").remove();
 	  		
@@ -232,7 +255,8 @@
 	 
 	 
 	 $(document).ready(function() {
-  	  $('#progbar-space').hide();
+  	  	$('#progbar-space').hide();
+  	  	$('.elaborateBTN').hide();
 	});
 	 
 	 
@@ -267,7 +291,9 @@
 				<h1>V.0.7</h1>
 			</div>
 			<div class="col">
-								<button id="scan" type="button" class="btn btn-dark">Start scanning threads</button>
+								<button id="scan" type="button" class="btn btn-dark">Start scanning threads</button></br></br>
+													<button id="stop" type="button" class="btn btn-danger">Clear All</button>	
+
 	
 			</div>
       	</div>
@@ -289,12 +315,16 @@
       	
 		<div class="row">
 			
-				<div class="col-md-4"></div>
-				<div class="col-md-4"></div>
 				<div class="col-md-4">
-						<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#demo">
+				
+					<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#demo">
     					Show Console
   						</button>
+				
+				</div>
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+					
   				</div>
 		</div>
 			
@@ -323,7 +353,7 @@
 			</br>
 			</br>
 			
-						<div class="row" id="progbar-space" >
+			<div class="row" id="progbar-space" >
 				<div class="col-md-3"></div>
 			
 				<div class="col-md-6 bg-light" style="border:1px solid black; border-radius: 10px;padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px">
@@ -337,7 +367,7 @@
 					</div>
 					</br>
 					<p id="proglabel2"></p>
-			
+			<button id="skip" type="button" class="btn btn-warning">Skip This Download</button>
 				</div>
 			
 			
@@ -345,7 +375,13 @@
 			</div>
 			
 			
-			
+						<div class="row elaborateBTN" id="elaborateBTN">
+				<div class="col">
+					<button id="start" type="button" class="btn btn-success">Elaborate</button>
+										
+
+				</div>	
+			</div>
 			
 			
 			
@@ -389,10 +425,11 @@
 			</br>
 			
 			
-			<div class="row">
+			<div class="row elaborateBTN" id="elaborateBTN">
 				<div class="col">
-					<button id="start" type="button" class="btn btn-success">Start Crawling</button>
-					<button id="stop" type="button" class="btn btn-danger">Stop Crawling</button>	
+					<button id="start" type="button" class="btn btn-success">Elaborate</button>
+										
+
 				</div>	
 			</div>
 			</br>

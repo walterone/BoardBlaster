@@ -57,7 +57,7 @@ var global_ThumbThread;
 var gloabl_thumbComplete = [];
 
 //Variabile di gestione delle pagine
-//var stopPages = false;
+var skipDL = false;
 
 //DB dei JSON
 var allJSONs = [];
@@ -96,7 +96,7 @@ io.on('connection', (socket) => {
    		 
   	});
   	
-  	//alla ricezione dell'evento + parametro
+  	/*alla ricezione dell'evento + parametro
   	socket.on('scan', (selboard) => {
   	
   	 boardsComplete.boards.forEach((item, index)=>{
@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
    	 
    	 
   	});
-  	
+  	*/
   	
   	socket.on('work', (threads) => {
   	
@@ -127,6 +127,9 @@ io.on('connection', (socket) => {
 
 	//funzione di eliminazione da viewer
 	socket.on('delete', (percorso) => {
+	
+		
+		
   		//cambio da url a directory
 		var newpercorso = decodeURIComponent(percorso.replace('/view','/Output'));	
 		
@@ -134,10 +137,85 @@ io.on('connection', (socket) => {
 		deleteFile(__dirname + newpercorso);
   	});
   	
+  	socket.on('skipDL', () => {
+  		skipDL = true;
+  		console.log(skipDL);
+  	});
+  	
+  	socket.on('clear', (selboard) => {
+	
+	setup();
+  	
+	boardsComplete.boards.forEach((item, index)=>{
+				//console.log(index, item.letter
+				boards.push(item.letter);
+    
+    });
+    
+   	 //imposta la board ricevuta come atttiva
+   	 currboard = selboard;
+   	 //parte preload (DA eseguire prima della richiesta)
+   	// preLoad();
+
+  	});
+  	
+  	
+  	socket.on('scan', (selboard) => {
+  											
+	
+	boardsComplete.boards.forEach((item, index)=>{
+				//console.log(index, item.letter
+				boards.push(item.letter);
+    
+    });
+    
+   	 //imposta la board ricevuta come atttiva
+   	 currboard = selboard;
+   	 //parte preload (DA eseguire prima della richiesta)
+   	// preLoad();
+
+		 preLoad();
+
+  	});
+  	
+  
+  
+  
   
   
   	socket.on('disconnect', () => { /*goodbye*/ });
 });
+
+
+function setup(){
+//Fare funzione ad-hoc
+											 boards = [];
+											 filter = [];
+											 threadsRaw = [];
+											 currboard= "";
+											 caturl= "";
+											 rawOutPath = "";
+											 mainOutPath = "";
+											 filterPath= "";
+											 thumbcache= "";
+											 booty;
+											 global_ThumbFilenames = "";
+											 global_ThumbThread = "";
+											 gloabl_thumbComplete = [];
+											 skipDL = false;
+
+										//Variabile di gestione delle pagine
+										//var stopPages = false;
+
+										//DB dei JSON
+											 allJSONs = [];
+
+										//Coda download
+											 dlQueue = [];
+
+
+
+}
 
 
 //---------------DELETION FUNCTION---------------
@@ -246,6 +324,8 @@ async function worker(workArray = []) {
 //---------------SCANNER FUNCTION---------------
 async function scan() {
 //console.log("INSCAN");
+console.log(icat + "  ---  " + ithreads);
+
 var stoptest = 0;
 
 	//riceve il JSON del catalogo
@@ -261,6 +341,23 @@ var stoptest = 0;
 		}
 */
 
+			//log("Showing page "+ (icat+1) + " of " + catalogJSON.length,0);
+			
+			stoptest++
+			if(stoptest > 2){
+			
+			
+				io.sockets.emit("done", "");
+			
+				log("Showing page "+ icat + " of " + catalogJSON.length,0);
+				//console.log("dlQueue: " + dlQueue);
+				break
+			}
+
+
+	/*START TEST	
+	
+	
 		stoptest++
 		//console.log("stoptest: " + stoptest);
 
@@ -270,15 +367,18 @@ var stoptest = 0;
 			break
 		}
 		
-		
-			
+	*/		
 		//Toglie i primi due post inutili della prima pagina del catalogo
 		//log(icat + " --- " + ithreads);
-if(icat == 0 & currboard == "s"){
+if(icat == 0 && currboard == "s"){
 	ithreads = 2;
 }else{
 	ithreads = 0;
 }
+
+
+
+
 		
 console.log(ithreads);	
 		//For che cicla attraverso i singoli numeri di thread dentro la pagina attuale del catalogo.
@@ -302,10 +402,17 @@ console.log(ithreads);
 
 			//Controlla il nome e i caratteri speciali.
 			var threadTitle = await getfixName(threadFile);
+			/*
+		
+		STO ANCORA CERCANDO DI CAPIRE COME MAI OGNI TANTO ESCONO FUORI I THREAD RIPETUTI...
+		Questo problema avviene ancora per: /a/, 
 			
-console.log(ithreads);
+			*/
+			
+			
+console.log("pag: "+icat+ "| n."+ithreads +"  -  "+threadTitle+"  -  "+ catalogJSON[icat].threads[ithreads].sub);
 //Titolo Thread trovato
-log(threadTitle,0);
+//log(threadTitle,0);
 
 			
 			//se il nome del thread è incluso nel filtro allora salta
@@ -451,9 +558,8 @@ log(threadTitle,0);
 
 async function elaborator(){
 
-
-	for (var i = 0; i < dlQueue.length; i++) {
 	
+	for (var i = 0; i < dlQueue.length; i++) {
 		var current = dlQueue[i];
 		var obj = {
 					"currimg": 0,
@@ -464,16 +570,25 @@ async function elaborator(){
 		log(current.img.length + " files",0);
 		
 		for(var i2 = 0; i2 < current.img.length; i2++){
-		
+		console.log(skipDL);
+			if(!skipDL){
+				await filedownload(current.img[i2],current.name);
+				obj.currimg = (i2 + 1);
+				log("Scaricato " + (i2 + 1) + "/" + current.img.length,1);
+				io.sockets.emit("progBar", JSON.stringify(obj));
 			
-			await filedownload(current.img[i2],current.name);
-			obj.currimg = (i2 + 1);
-			log("Scaricato " + (i2 + 1) + "/" + current.img.length,1);
-			io.sockets.emit("progBar", JSON.stringify(obj));
+			}else{
+				break;
+			
+			}
+			
 		
 		}
 		//dlQueue = dlQueue.filter((item) => item.name !== current.name);
-		dlQueue.shift()
+		//dlQueue.shift()
+		
+		skipDL = false;
+		log("SKIPPED THREAD DOWNLOAD",1);
 		console.log(dlQueue);
 		
  
@@ -484,6 +599,8 @@ async function elaborator(){
 	//Dato che gli indici sono globali allora è possibile fermare e startare il crawl senza perdere la pagina
 	//TEST: Far continuare il crawl e vedere se si riesce ad effettuare il DL in maniera Asyncrona.
 	log("Finito di elaborare, servo le prossime immagini...",0);
+	dlQueue = [];
+	//ithreads = 0;
 	scan();
 
 
@@ -777,14 +894,19 @@ async function filterStart(pathfile){
 	//esiste il file?
 	if (!fs.existsSync(pathfile)){
 			//non esiste il filtro, lo creo
-			log("file filtro inesistente, creazione",2);
+			log("file filtro inesistente, creazione" + pathfile,2);
+			
 		fs.writeFile(pathfile, "", err => {
   			if (err) {
     		console.error(err)
     		resolve(false);
   			}
-  			
-  			//file created successfully
+			if (fs.existsSync(pathfile)){
+					//file created successfully		
+				} else {
+				
+					throw new Error("ERRORE, FILE FILTRO NON CREATO (folderMake())")  	;		
+			}
   			
 		})
     		
@@ -824,6 +946,7 @@ async function filterWork(typeOfWork, somedata, board){
 			var prefilter = [];
 			filter = [];
 			//carica e legge i chars dividendoli per newline
+			console.log(localFilterPath);
 			var buf = fs.readFileSync(localFilterPath);
 			buf.toString().split(/\n/).forEach(function(line){
 				//pusha nell'array prefilter
@@ -1012,6 +1135,7 @@ async function getjson(url) {
 			var jsonfile = JSON.parse(JSON.stringify(json));
 			//log("ricevuto JSON");
 			//riceve il file e lo manda con callback (risolvendo la promessa)
+			//console.log(url)
 			resolve(jsonfile);
 		});
     });

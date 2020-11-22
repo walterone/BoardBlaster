@@ -59,6 +59,14 @@ The working logic of BoardBlaster (BB) is the following:
 
 ## Release History
 
+* 0.8
+    + ADD: Added idle stage, it's not necessary anymore to restart the program in order to switch board
+    + ADD: Added better Web console UI.
+    + ADD: Added a "Skip current download" button
+    + FIX: Fixes:
+        * Fixed an issue in the filter creation where the function wouldn't double check for the file existance.
+        * Fixed a small issue in the `filedownload()` function that occasionally gave 404 errors.
+
 * 0.7.5
     + ADD: Added boards description
     + ADD: Added different color for threads that are already downloaded
