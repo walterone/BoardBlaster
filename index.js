@@ -15,13 +15,16 @@ var io = require('socket.io')(http);
 
  
 var boardsComplete = {"boards":[
-						{"letter":"s","name":"Sexy Beautiful Women"},
-						{"letter":"gif","name":"Adult GIF"},
-						{"letter":"h","name":"Hentai"},
-						{"letter":"hr","name":"High Resolution"},
+						{"letter":"wg","name":"Wallpapers/General"},
 						{"letter":"a","name":"Anime & Manga"},
-						{"letter":"hc","name":"Hardcore"},
-						{"letter":"wg","name":"Wallpapers/General"}
+						{"letter":"w","name":"Anime Wallpapers"},
+						{"letter":"p","name":"Photography"},
+						{"letter":"hr","name":"High Resolution"},
+						{"letter":"s","name":"Sexy Beautiful Women (NSFW)"},
+						{"letter":"gif","name":"Adult GIF (NSFW)"},
+						{"letter":"h","name":"Hentai (NSFW)"},
+						{"letter":"hc","name":"Hardcore (NSFW)"}
+						
 						]}
 
 
@@ -349,7 +352,7 @@ var stoptest = 0;
 			
 				io.sockets.emit("done", "");
 			
-				log("Showing page "+ icat + " of " + catalogJSON.length,0);
+				log("Finito! Sto mostrando pag. "+ icat + " di " + catalogJSON.length,0);
 				//console.log("dlQueue: " + dlQueue);
 				break
 			}
@@ -598,7 +601,7 @@ async function elaborator(){
 	//In questo modo il crawling (che avviene dentro la funzione scan()) viene riavviato alla fine dell'elaborazione.
 	//Dato che gli indici sono globali allora è possibile fermare e startare il crawl senza perdere la pagina
 	//TEST: Far continuare il crawl e vedere se si riesce ad effettuare il DL in maniera Asyncrona.
-	log("Finito di elaborare, servo le prossime immagini...",0);
+	log("Servo le prossime immagini, attendere...",0);
 	dlQueue = [];
 	//ithreads = 0;
 	scan();

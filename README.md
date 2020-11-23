@@ -48,14 +48,58 @@ localhost:port
 
 ## More Details
 
-The BoardBlaster project was born from the desire of downloading and keeping offline many different medias found on 4Chan's boards (especially the NSFW boards). From this idea i started making a simple crawler (Called 4ChanCrawler) that soon evolved in something much more interesting than just a simple downloader.
+The BoardBlaster project was born from the desire of downloading and keeping offline many different medias found on 4Chan's boards (especially the NSFW boards). From this idea i started making a simple crawler (Called 4ChanCrawler) that soon evolved in something much more interesting.
+
+The program can be divided in 3 different "modules":
+
+1. BB Core -> (The backend, responsable for doing the majority of the work)
+2. Web Dashboard -> (Web control panel, UI and interfacing).
+
+3. Viewer -> This the personal media gallery, it's optimized for mobile and allows to delete folders and files. Each folder deleted is than automatically added to that board's filter.
+
 
 The working logic of BoardBlaster (BB) is the following:
 
-1. It starts by letting the user chose the board that they want to scan
-2. BB then serves the different threads of the board, each thread has three options: **Ignore, Download and Blacklist**
-3. After having chosen an action for one (or more) specific thread, the BB core will start processing the medias. It will download or blacklist the media file.
-4. Once done it will start crawling for more threads on that board.
+1. Start by connecting to the Web-Dashboard and choosing the desired board to scan.
+2. BB will list all the different threads (that contain any media) in the first two pages of the board. Each thread can be processed in three ways: 
+    * **Ignore:** Just ignores it
+    * **Download:** It will add all the medias in that thread to a queue. That queue will then be processed (and downloaded) in the next step 
+    * **Blacklist:** It adds the thread name to the specific filter of that board so that in the future won't be showed anymore.
+3. After having chosen an action for each thread, the BB core will start processing the medias with the chosen action. In this stage it's possible to skip the download if you changed your mind.
+4. After having done it will restart from the second stage until it runs out of threads.
+
+    Meanwhile all of this happens it's still possible to use the Visualizer Module with all its functions.
+
+
+
+
+
+
+## Known Issues & TODO
+#### Issues:
+* In some boards (especially /a/) BB will sometimes serve the same threads again. This will result in errors when downlaoding the thumbnails
+* Random rare issues when writing to the filter
+* The logging system needs to be improved, still confusing
+* Some thread names have a combination of weird characters that rarely cause the program to crash.
+
+#### Things To Do:
+* WebM management on mobile
+* Tidy up code and logic
+* Better logging & diagnostic system
+* Rebuild
+* Bug fixing (more and more)
+* Split into standalone modules
+* ~~Add Viewer module with all it's feature~~ (V0.6)
+* ~~Dynamic filter path change~~ (V0.6)
+* ~~Add a web console for real-time monitoring~~ (V0.7)
+* ~~Add progress bar and better UI for improved UX~~ (V0.75)
+* ~~Make the program stable enough so that it doesn't need to be restarted when switching between boards~~ (V0.8)
+* ~~Initial setup needs to happen when the program starts and not when it starts to scan~~ (V0.8)
+* ~~Ability to skip current download~~ (V0.8)
+
+
+
+
 
 
 
