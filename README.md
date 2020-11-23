@@ -1,5 +1,7 @@
 # BoardBlaster
 
+##### Current Version (Beta): V0.8
+
 > This is a concept in Early Development, all feedbacks are appreciated!
 
 BoardBlaster is a lightweight utility, made in Node.JS, for all your media downloading and curating needs! \
