@@ -826,6 +826,13 @@ async function preLoad(){
 	//ok
 	
 	}
+	if (fs.existsSync(filterPath)){
+					//file created successfully		
+					console.log("TUTTO OK");
+				} else {
+				
+					throw new Error("ERRORE, FILE FILTRO NON CREATO (folderMake())")  	;		
+			}
 	//caricamento termini di filtraggio
 	await filterWork("load","","");
 	//show filter in console
@@ -899,17 +906,12 @@ async function filterStart(pathfile){
 			//non esiste il filtro, lo creo
 			log("file filtro inesistente, creazione" + pathfile,2);
 			
-		fs.writeFile(pathfile, "", err => {
+		fs.writeFileSync(pathfile, "", err => {
   			if (err) {
     		console.error(err)
     		resolve(false);
   			}
-			if (fs.existsSync(pathfile)){
-					//file created successfully		
-				} else {
-				
-					throw new Error("ERRORE, FILE FILTRO NON CREATO (folderMake())")  	;		
-			}
+			
   			
 		})
     		

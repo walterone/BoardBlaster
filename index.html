@@ -191,6 +191,9 @@
 			  //$('#txtConsole').prepend("STARTING..."+ "\n");	
 			  socket.emit('scan', curboard);
 			  $(".lista").remove();
+			  $('#txtConsole').text('');
+			  $('.elaborateBTN').hide();
+
 		}
 	  
 	  
@@ -318,7 +321,7 @@
 				<div class="col-md-4">
 				
 					<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#demo">
-    					Show Console
+    					Hide/Show Console
   						</button>
 				
 				</div>

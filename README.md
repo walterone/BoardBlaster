@@ -80,9 +80,10 @@ The working logic of BoardBlaster (BB) is the following:
 ## Known Issues & TODO
 #### Issues:
 * In some boards (especially /a/) BB will sometimes serve the same threads again. This will result in errors when downlaoding the thumbnails
-* Random rare issues when writing to the filter
+* Filter creation function not working correctly.
 * The logging system needs to be improved, still confusing
-* Some thread names have a combination of weird characters that rarely cause the program to crash.
+* Some thread names have a combination of weird characters that cause the program to crash.
+* When changing the board, BB must be idling and mustn't be elaborating any queue.
 
 #### Things To Do:
 * WebM management on mobile
