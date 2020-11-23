@@ -41,7 +41,7 @@ At this point you should see a message that specifies the http web-panel port. (
 
 Connect with your favourite browser to:
 ```sh
-localhost:port
+localhost:port (localhost:3000)
 ```
 
 
