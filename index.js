@@ -1,6 +1,5 @@
 
 var path = require('path')
-//var serveIndex = require('serve-index');
 var serveIndex = require('./serve-index-modded');
 
 const fs = require("fs")
@@ -14,12 +13,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 //Array filled with hardcoded thread names to skip (usually these are "how-to" threads)
-var hardcodedFilter = ["","questionable age","Welcome to wg - WallpapersGeneral","more-of-her","Rules of this board (in plain english)","READ FIRST"];
-
-
-//Original boards array
-//var boards = ["s","gif","h","hr", "a", "hc", "wg"];
- 
+var hardcodedFilter = ["","questionable age","Welcome to wg - WallpapersGeneral","more-of-her","Rules of this board (in plain english)","READ FIRST"]; 
  
 var boardsComplete = {"boards":[
 						{"letter":"wg","name":"Wallpapers/General"},
