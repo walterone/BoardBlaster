@@ -114,6 +114,8 @@
 	socket.on('done', function() {
 	
 	 $('.elaborateBTN').show();
+	   	  	$('#stop').show();
+  	  	$('#scan').show();
 	
 	});
 
@@ -193,6 +195,8 @@
 			  $(".lista").remove();
 			  $('#txtConsole').text('');
 			  $('.elaborateBTN').hide();
+			    	  	$('#stop').hide();
+  	  	$('#scan').hide();
 
 		}
 	  
@@ -211,6 +215,8 @@
 	  		$('.elaborateBTN').hide();
 	  		socket.emit('work', threads);
 	  		$(".lista").remove();
+	  		  	  	$('#stop').hide();
+  	  	$('#scan').hide();
 	  		
 	  		
 	  
@@ -260,6 +266,9 @@
 	 $(document).ready(function() {
   	  	$('#progbar-space').hide();
   	  	$('.elaborateBTN').hide();
+  	  	
+  	  	
+  	  	//Aggiungere hide per clear e scan button.
 	});
 	 
 	 

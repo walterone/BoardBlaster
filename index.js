@@ -1,6 +1,5 @@
 
 var path = require('path')
-//var serveIndex = require('serve-index');
 var serveIndex = require('./serve-index-modded');
 
 const fs = require("fs")
@@ -13,6 +12,8 @@ let settings = { method: "Get" };
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
+//Array filled with hardcoded thread names to skip (usually these are "how-to" threads)
+var hardcodedFilter = ["","questionable age","Welcome to wg - WallpapersGeneral","more-of-her","Rules of this board (in plain english)","READ FIRST"]; 
  
 var boardsComplete = {"boards":[
 						{"letter":"wg","name":"Wallpapers/General"},
@@ -27,52 +28,56 @@ var boardsComplete = {"boards":[
 						
 						]}
 
-
-
-//var boards = ["s","gif","h","hr", "a", "hc", "wg"];
+//Dynamic board array
 var boards = [];
 
+//filter array
 var filter = [];
-var threadsRaw = [];
 
+
+
+//Current stored board
 var currboard;
 
-//indexes
-var icat;
-var ithreads;
-var iwork;
+//INDEXES!
+//Category (page) index
+	var icat;
+//Threads Index	
+	var ithreads;
+//Working Queue Index
+	var iwork;
 
 //urls
 var caturl;
 
-//Percorsi
+//Paths
 var rawOutPath;
 var mainOutPath;
 var filterPath;
 var thumbcache;
 
-//Nomi thread già presenti
+//Variable for already downloaded threads
 var booty;
 
-//Variabili globali per i recheck dei download
+//Global variables for download re-check
 var global_ThumbFilenames;
 var global_ThumbThread;
 var gloabl_thumbComplete = [];
 
-//Variabile di gestione delle pagine
+//Page management variable
 var skipDL = false;
 
-//DB dei JSON
+//JSONs DB
 var allJSONs = [];
 
-//Coda download
+//Download Queue
 var dlQueue = [];
 
 
 //---------------SETUP SECTION---------------
-//Scegli setta path statica per cartella Output
+//Static path for FS operations
 app.use(express.static(path.join(__dirname, 'Output')));
-//al percorso "/view" si trova il visualizer & alla root la dashboard
+//Visualizer is at the "/view" directory
 app.use('/view', express.static('Output'), serveIndex('Output', {'icons': true, 'view': 'details'}))
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -88,8 +93,7 @@ io.on('connection', (socket) => {
     
    
     
-   		// log('boards richieste (' + boards + ')');
-   		//log('boards richieste (' + boardsComplete.boards + ')',1);
+
    	 	//Manda l'array di boards
    		 io.sockets.emit("boards", boardsComplete);
    		 
@@ -99,29 +103,11 @@ io.on('connection', (socket) => {
    		 
   	});
   	
-  	/*alla ricezione dell'evento + parametro
-  	socket.on('scan', (selboard) => {
   	
-  	 boardsComplete.boards.forEach((item, index)=>{
-				//console.log(index, item.letter
-				boards.push(item.letter);
-    
-    });
-    
-   	 //imposta la board ricevuta come atttiva
-   	 currboard = selboard;
-   	 //parte preload (DA eseguire prima della richiesta)
-   	 preLoad();
-   	 
-   	 
-   	 
-  	});
-  	*/
   	
   	socket.on('work', (threads) => {
   	
-	//booleana usata per fermare il crawling delle pagine 	 
-   	// stopPages = false;
+	
    	 
    	 //funzione di "work" per il download/blacklist
    	 worker(threads);
@@ -157,8 +143,7 @@ io.on('connection', (socket) => {
     
    	 //imposta la board ricevuta come atttiva
    	 currboard = selboard;
-   	 //parte preload (DA eseguire prima della richiesta)
-   	// preLoad();
+
 
   	});
   	
@@ -174,8 +159,7 @@ io.on('connection', (socket) => {
     
    	 //imposta la board ricevuta come atttiva
    	 currboard = selboard;
-   	 //parte preload (DA eseguire prima della richiesta)
-   	// preLoad();
+
 
 		 preLoad();
 
@@ -194,7 +178,6 @@ function setup(){
 //Fare funzione ad-hoc
 											 boards = [];
 											 filter = [];
-											 threadsRaw = [];
 											 currboard= "";
 											 caturl= "";
 											 rawOutPath = "";
@@ -206,18 +189,8 @@ function setup(){
 											 global_ThumbThread = "";
 											 gloabl_thumbComplete = [];
 											 skipDL = false;
-
-										//Variabile di gestione delle pagine
-										//var stopPages = false;
-
-										//DB dei JSON
 											 allJSONs = [];
-
-										//Coda download
 											 dlQueue = [];
-
-
-
 }
 
 
@@ -326,7 +299,6 @@ async function worker(workArray = []) {
 
 //---------------SCANNER FUNCTION---------------
 async function scan() {
-//console.log("INSCAN");
 console.log(icat + "  ---  " + ithreads);
 
 var stoptest = 0;
@@ -336,13 +308,6 @@ var stoptest = 0;
 						
 	//For che cicla attraverso i numeri delle pagine del catalogo!
 	for (icat; icat < catalogJSON.length; icat++){
-/*		OLD VERSION.
-		if(stopPages){
-			log("Showing page "+ icat + " of " + catalogJSON.length,0,0);
-			//console.log("dlQueue: " + dlQueue);
-			break
-		}
-*/
 
 			//log("Showing page "+ (icat+1) + " of " + catalogJSON.length,0);
 			
@@ -358,29 +323,9 @@ var stoptest = 0;
 			}
 
 
-	/*START TEST	
-	
-	
-		stoptest++
-		//console.log("stoptest: " + stoptest);
-
-		if(stoptest > 2){
-			log("Showing page "+ icat + " of " + catalogJSON.length,0);
-			//console.log("dlQueue: " + dlQueue);
-			break
-		}
-		
-	*/		
-		//Toglie i primi due post inutili della prima pagina del catalogo
 		//log(icat + " --- " + ithreads);
-if(icat == 0 && currboard == "s"){
-	ithreads = 2;
-}else{
-	ithreads = 0;
-}
 
-
-
+ithreads = 0;
 
 		
 console.log(ithreads);	
@@ -390,7 +335,7 @@ console.log(ithreads);
 			//All'inizio dell'elaborazione dei thread nella pagina, viene settata la variabile true così che il for delle pagine quando ritorna ad estrarre esca con un break
 			//Quando dalla pagina web verrà chiesto di andare avanti allora verrà settata dall'elaborator come true.
 			//l'indice delle pagine (icat) è globale e terrà l'ultima pagina elaborata in memoria.
-			//stopPages = true;
+			
 			
 			
 			
@@ -410,6 +355,7 @@ console.log(ithreads);
 		STO ANCORA CERCANDO DI CAPIRE COME MAI OGNI TANTO ESCONO FUORI I THREAD RIPETUTI...
 		Questo problema avviene ancora per: /a/, 
 			
+		+++Forse fixato togliendo l'auto skip dei primi thread per la board specifica. (ora si usa array ad hoc).
 			*/
 			
 			
@@ -420,7 +366,7 @@ console.log("pag: "+icat+ "| n."+ithreads +"  -  "+threadTitle+"  -  "+ catalogJ
 			
 			//se il nome del thread è incluso nel filtro allora salta
 			//Forse per il futuro sarebbe meglio fare l'associazione con il numero per evitare onomini
-			if(filter.includes(threadTitle)){
+			if(filter.includes(threadTitle) || hardcodedFilter.includes(threadTitle)){
 				log("FilterInfo: " + threadTitle + " is blacklisted, skipping...",1);
 				continue;
 				
@@ -587,8 +533,7 @@ async function elaborator(){
 			
 		
 		}
-		//dlQueue = dlQueue.filter((item) => item.name !== current.name);
-		//dlQueue.shift()
+
 		
 		skipDL = false;
 		log("SKIPPED THREAD DOWNLOAD",1);
@@ -653,54 +598,7 @@ async function filedownload(img,thrtitle){
 	});
 }
 
-//LEGACY DOWNLOAD FUNCTION (Da 4CC V1)
-/*
-async function filedownload(filename,path,thread){
-	return new Promise(function(resolve, reject) {
-		//costruita prima parte del path
-		var temp = path  + thrtitle + "/";
-		//costruzione url del cdn
-		var url = "https://i.4cdn.org/"+ boards[currboard] +"/" + filename;
-		//assegnazione a costante globale.
-		imgUrl = url;
-		//crea il path di sistema per l'immagine
-		var file = mainOutPath  + thrtitle + "/" + time + ext;
-		//spingo il valore dentro la costante globale
-		imgPath = file;
-		//log(file);
-		// Controllo se il file con path imgPath esiste
-		try {
-			if(fs.existsSync(file)) {
-				//immagine esiste, non fa niente
-				imgExists = true;
-				resolve();
-			} else {
-				//immagine non esiste, scaricarla
-			
-				imgExists = false;
-				
-				
-				//setto directory di destinazione
-				var options = {directory: temp}
-				//download effettivo (npm)
-				download(url, options, function(err){
-					if (err){
-					log("ERRORE DI DOWNLOAD");
-					//throw err
-					//riprova download con i dati globali
-					filedownload(currTime,currExt,threadTitle);
-					}
-					//log("downloaded!")
-					resolve();
-				}) 
-			}
-		} catch (err) {
-			console.error(err);
-		}
-	});
-}
 
-*/
 
 
 //---------------THUMBNAILS DOWNLOADER FUNCTION---------------
@@ -739,7 +637,7 @@ async function getThumbs(img,thrtitle){
 				//download effettivo (npm)
 				download(url, options, function(err){
 					if (err){
-					console.log(url + " --- " + err);
+					console.log(url + " -- " + file + " -- " + err);
 					log("ERRORE DI DOWNLOAD THUMBNAIL",3);
 					//throw err
 					//riprova download con i dati globali
@@ -766,9 +664,7 @@ async function getThumbs(img,thrtitle){
 //ESEGUIRE QUESTE OPERAZIONI ALL'AVVIO PRELIMINARE
 async function preLoad(){
 	log("STARTING ...",0);
-//rawOutPath = "/Users/walterone/Documents/NodeJS/BoardsBlaster/Output/";
 	rawOutPath = __dirname + "/Output/"
-	//thumbcache = "/Users/walterone/Documents/NodeJS/BoardsBlaster/Output/thumbs/";
 	thumbcache = __dirname + "/Output/thumbs/"
 	//Set indexes
 	 icat = 0;
@@ -835,11 +731,7 @@ async function preLoad(){
 			}
 	//caricamento termini di filtraggio
 	await filterWork("load","","");
-	//show filter in console
-	//log(filter);
 	log("--Ready to Crawl--",1);
-	//Funzione di scan
-	//scan();
 	
 	elaborator();
 
