@@ -959,9 +959,8 @@ async function filterWork(typeOfWork, somedata, board){
 			var prefilter = [];
 			filter = [];
 			//carica e legge i chars dividendoli per newline
-			console.log(localFilterPath);
+			//console.log(localFilterPath);
 			var buf = fse.readFileSync(localFilterPath);
-			console.log(buf.toString());
 			buf.toString().split(/\n/).forEach(function(line){
 				//pusha nell'array prefilter
 				prefilter.push(line);
