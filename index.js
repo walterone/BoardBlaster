@@ -48,7 +48,7 @@ var iwork;
 var caturl;
 
 //Percorsi
-var rawOutPath;
+var rawOutPath = __dirname + "/Output/"
 var mainOutPath;
 var filterPath;
 var thumbcache;
@@ -74,6 +74,7 @@ var dlQueue = [];
 //---------------SETUP SECTION---------------
 //Scegli setta path statica per cartella Output
 app.use(express.static(path.join(__dirname, 'Output')));
+app.use('/thumb', express.static(path.join(__dirname, 'web-assets/fico')))
 //al percorso "/view" si trova il visualizer & alla root la dashboard
 app.use('/view', express.static('Output'), serveIndex('Output', {'icons': true, 'view': 'details'}))
 app.get('/', (req, res) => {
@@ -94,7 +95,7 @@ io.on('connection', (socket) => {
    		//log('boards richieste (' + boardsComplete.boards + ')',1);
    	 	//Manda l'array di boards
    		 io.sockets.emit("boards", boardsComplete);
-   		 
+   		
    		 
 			
 			
@@ -199,7 +200,7 @@ function setup(){
 											 threadsRaw = [];
 											 currboard= "";
 											 caturl= "";
-											 rawOutPath = "";
+											 rawOutPath = __dirname + "/Output/"
 											 mainOutPath = "";
 											 filterPath= "";
 											 thumbcache= "";
@@ -266,6 +267,7 @@ async function deleteFile(percorso){
 			
 
 		}
+		
 	} catch (err){
 		//file inesistente
 		log("Errore generico nell'eliminazione: " + err,3);
@@ -1161,4 +1163,5 @@ async function getjson(url) {
 
 http.listen(3000, () => {
   log('server created on *:3000',1);
+  
 });
