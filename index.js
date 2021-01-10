@@ -3,7 +3,9 @@ var path = require('path')
 //var serveIndex = require('serve-index');
 var serveIndex = require('./serve-index-modded');
 
+const fse = require("fs-extra")
 const fs = require("fs")
+
 var express = require('express');
 var app = express();
 var striptags = require('striptags');
@@ -243,22 +245,26 @@ async function deleteFile(percorso){
 			//	log(filter);
 			//delete folder
 			try{
-				fs.rmdir(percorso,{recursive: true,},() => { 	
+					fse.removeSync(percorso);
 					log("Folder DELETED: " + percorso,1); 
-				}); 	
+					
 			} catch(err) {
 				log("ERRORE ELIMINAZIONE CARTELLA: \n" + err,3);
 				deleteFile(percorso);
 			}
 		}else{
 			//è un file, eliminalo solo
-			fs.unlink(percorso, (err) => {
-				if (err) {
-					log('ERRORE ELIMINAZIONE FILE: ' +  err,3);
-				}else{
+			if(fse.removeSync(percorso)){
 					log('File Deleted: ' +  percorso,1);
-				};
-			});	
+			
+			}else{
+					log('ERRORE ELIMINAZIONE FILE!',3);
+		
+			};
+			
+			
+			
+
 		}
 	} catch (err){
 		//file inesistente
@@ -287,7 +293,8 @@ async function worker(workArray = []) {
 			if(workArray[localindex].flag == "blk"){
 				//fai blacklisting
 				await filterWork("filter", allJSONs[localindex].name, "");
-				await filterWork("load","", "");
+			//Ricarica filtro (NON FUNZIONA PIU', ISSUE GITHUB #6 https://github.com/walterone/BoardBlaster/issues/6)
+				//await filterWork("load","", "");
 			}
 			else if (workArray[localindex].flag == "dwn"){
 				//fai download:
@@ -426,7 +433,7 @@ console.log("pag: "+icat+ "| n."+ithreads +"  -  "+threadTitle+"  -  "+ catalogJ
 				
 			};
 			
-			booty = fs.readdirSync(mainOutPath);
+			booty = fse.readdirSync(mainOutPath);
 
 	
 
@@ -623,7 +630,7 @@ async function filedownload(img,thrtitle){
 		//log(file);
 		// Controllo se il file con path imgPath esiste
 		try {
-			if(fs.existsSync(file)) {
+			if(fse.existsSync(file)) {
 				//immagine esiste, non fa niente
 				log("FILE ESISTENTE: " + file,2);
 				resolve();
@@ -720,7 +727,7 @@ async function getThumbs(img,thrtitle){
 		//log(file);
 		// Controllo se il file con path imgPath esiste
 		try {
-			if(fs.existsSync(file)) {
+			if(fse.existsSync(file)) {
 				//immagine esiste, non fa niente
 				log("THUMBNAIL ESISTENTE: " + file,2);
 				resolve();
@@ -826,7 +833,7 @@ async function preLoad(){
 	//ok
 	
 	}
-	if (fs.existsSync(filterPath)){
+	if (fse.existsSync(filterPath)){
 					//file created successfully		
 					console.log("TUTTO OK");
 				} else {
@@ -851,17 +858,18 @@ async function resetThumbs(name){
 	
 	try{
 			//elimina la cartella thumbcache
-			fs.rmdirSync(thumbcache,{recursive: true,},() => { 
+			fse.removeSync(thumbcache);
 		
-				log("Thumbs resetted",1); 
   
-			}); 
+			
 			//e la ricrea
 			folderMake(thumbcache);
 			
 		} catch(err) {
 			log(err,3);
 		}
+		log("Thumbs resetted",1); 
+
 		resolve()
 	
 	});
@@ -871,7 +879,7 @@ async function resetThumbs(name){
 async function checkFolder(name){
 	return new Promise(function(resolve, reject) {
 	var status;
-	if (!fs.existsSync(name)){
+	if (!fse.existsSync(name)){
 			//se non esiste crea la cartella
 			status = false;
     		resolve(status);
@@ -892,7 +900,7 @@ async function checkFolder(name){
 async function folderMake(path){
 	return new Promise(function(resolve, reject) {
 	//crea cartella
-	fs.mkdirSync(path);
+	fse.mkdirSync(path);
 	
 	resolve();
 	});
@@ -902,7 +910,7 @@ async function filterStart(pathfile){
 	return new Promise(function(resolve, reject) {
 	//log(pathfile);
 	//esiste il file?
-	if (!fs.existsSync(pathfile)){
+	if (!fse.existsSync(pathfile)){
 			//non esiste il filtro, lo creo
 			log("file filtro inesistente, creazione" + pathfile,2);
 			
@@ -943,7 +951,7 @@ async function filterWork(typeOfWork, somedata, board){
 			
 		
 		}
-		log("loaclfilterpath: " + localFilterPath,0);
+		//log("loaclfilterpath: " + localFilterPath,0);
 	
 		//se deve caricare 
 		if(typeOfWork == "load"){
@@ -952,10 +960,12 @@ async function filterWork(typeOfWork, somedata, board){
 			filter = [];
 			//carica e legge i chars dividendoli per newline
 			console.log(localFilterPath);
-			var buf = fs.readFileSync(localFilterPath);
+			var buf = fse.readFileSync(localFilterPath);
+			console.log(buf.toString());
 			buf.toString().split(/\n/).forEach(function(line){
 				//pusha nell'array prefilter
 				prefilter.push(line);
+				
 				prefilter = prefilter.filter(item => item);
 				//con New Set permette di non avere duplicati
 				//TODO: In futuro da creare un match via regex per non dover blacklistare milioni di cose
@@ -972,9 +982,9 @@ async function filterWork(typeOfWork, somedata, board){
 		{
 			
 			log('Filtro: ' + somedata,1);
-			log(localFilterPath,0);
+			//log(localFilterPath,0);
 			//aggiungi il nome thread nel filtro + newline
-			fs.appendFile(localFilterPath, somedata + "\n", (err) => {
+			fse.appendFile(localFilterPath, somedata + "\n", (err) => {
   				if (err) log(err,3);
   				
   				//tutto ok!
