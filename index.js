@@ -255,11 +255,13 @@ async function deleteFile(percorso){
 			}
 		}else{
 			//è un file, eliminalo solo
-			if(fse.removeSync(percorso)){
+			try{
+			
+					fse.removeSync(percorso);
 					log('File Deleted: ' +  percorso,1);
 			
-			}else{
-					log('ERRORE ELIMINAZIONE FILE!',3);
+			}catch(err){
+					log('ERRORE ELIMINAZIONE FILE!  ' + err,3);
 		
 			};
 			
