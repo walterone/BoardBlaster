@@ -84,7 +84,9 @@ The working logic of BoardBlaster (BB) is the following:
 * The logging system needs to be improved, still confusing
 * Some thread names have a combination of weird characters that cause the program to crash.
 * When changing the board, BB must be idling and mustn't be elaborating any queue.
-* In order for the program to work correctly it's necessary to start a scan or at least click the "Clean" button before managing (especially deleting) medias in the visualizer module.
+* It's not possible to access the visualizer module until at least a scan has been done, this way the program can create all the folder structure.
+* In order for the filter to work correctly it's necessary to start a first scan or at least click the "Clean" button before managing (especially deleting) medias in the visualizer. 
+
 
 #### Things To Do:
 * WebM management on mobile
