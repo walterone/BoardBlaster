@@ -1,6 +1,6 @@
 # BoardBlaster
 
-##### Current Version (Beta): V0.8
+##### Current Version (Beta): V0.8.1 ***(The VMming)***!
 
 > This is a concept in Early Development, all feedbacks are appreciated!
 
@@ -77,15 +77,13 @@ The working logic of BoardBlaster (BB) is the following:
 
 
 
-## Known Issues & TODO
-#### Issues:
-* In some boards (especially /a/) BB will sometimes serve the same threads again. This will result in errors when downlaoding the thumbnails
-* Filter creation function not working correctly.
-* The logging system needs to be improved, still confusing
-* Some thread names have a combination of weird characters that cause the program to crash.
-* When changing the board, BB must be idling and mustn't be elaborating any queue.
-* It's not possible to access the visualizer module until at least a scan has been done, this way the program can create all the folder structure.
-* In order for the filter to work correctly it's necessary to start a first scan or at least click the "Clean" button before managing (especially deleting) medias in the visualizer. 
+## Roadmap & TODO
+#### ~~Roadmap:~~
+
+1. Coming soon
+
+
+
 
 
 #### Things To Do:
@@ -96,6 +94,7 @@ The working logic of BoardBlaster (BB) is the following:
 * Bug fixing (more and more)
 * Split into standalone modules
 * Implement an "Auto-Setup" to allow instant use of the visualizer module
+* Tidy up the "Issues" section in the readme and merge that with the 
 * ~~Add Viewer module with all it's feature~~ (V0.6)
 * ~~Dynamic filter path change~~ (V0.6)
 * ~~Add a web console for real-time monitoring~~ (V0.7)
@@ -111,6 +110,15 @@ The working logic of BoardBlaster (BB) is the following:
 
 
 ## Release History
+* 0.8.1 (The VMming, aka testing service uptime on Linux Server)
+    + ADD: Added favicon
+    + ADD: Changed from the standard filesystem's library `FS` to the extended version `FSE` with bigger toolset.
+    + FIX: Fixes & Improvements:
+        * Improved the "Clear" routine
+        * Fixed issues with the `removeSync` method that caused the program to crash.
+        * Small fix regarding the auto-setup, now some variables are pre-loaded.
+        * Fixed issues with some exception handling routines. 
+        * Various small fixes especially tested for Linux.
 
 * 0.8
     + ADD: Added idle stage, it's not necessary anymore to restart the program in order to switch board
