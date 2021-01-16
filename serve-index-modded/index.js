@@ -326,6 +326,8 @@ function createHtmlFileList(files, dir, useIcons, view) {
       + escapeHtml(normalizeSlashes(normalize(path.join('/'))))
       + '" class="' + escapeHtml(classes.join(' ')) + '"'
       + ' title="' + escapeHtml(file.name) + '">'
+            + '<button class="lazy" id="btnDir" fvalue="' + escapeHtml(normalizeSlashes(normalize(path.join('/')))) + '">X' + '</button>'
+
       + '<span class="name">' + escapeHtml(file.name) + '</span>'
      // + '<span class="size">' + escapeHtml(size) + '</span>'
       + '<button id="btnDir" fvalue="' + escapeHtml(normalizeSlashes(normalize(path.join('/')))) + '">Del' + '</button>'
@@ -357,7 +359,7 @@ function createHtmlFileList(files, dir, useIcons, view) {
       + '" class="' + escapeHtml(classes.join(' ')) + '"'
       + ' title="' + escapeHtml(file.name) + '">'
       + '<span class="name">' + escapeHtml(file.name) + '</span>'
-      + '<span class="size">' + escapeHtml(size) + '</span>'
+      + '<button id="btnDir" fvalue="' + escapeHtml(normalizeSlashes(normalize(path.join('/')))) + '">Del' + '</button>'
       + '<span class="date">' + escapeHtml(date) + '</span>'
       + '</a>\n<center><video autoplay loop muted playsinline controls>'
       +'<source src="'
